@@ -7,7 +7,7 @@ This BASH OSX script is useful for scanning - editing Metadata for a complete di
 Just put the songs you want to edit in the Songs_Metadate dir, 
 run the script in terminal :
 
-./ Rmetadata
+./Rmetadata
 
 You will need to run this before :
 

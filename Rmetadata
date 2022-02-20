@@ -18,18 +18,25 @@ fi
 
 clear
 
+# Checking if mp3 or wav files are in the directory
+
 
 
 # Cheking all mp3 and wav files from directory put them in a array then sort them
 
-songs_array=($(ls *.{mp3,wav} | sort))
+songs_array=($(ls *.{mp3,wav} 2>/dev/null | sort))
 
+if [[ ! $songs_array ]]; then
+	echo ""
+	echo "There is no files yet, you need to put wav or mp3 files in the Rmetadata directory"
+	exit
+fi
 
 list_array()
 {
 	for i in "${!songs_array[@]}"
 	do 
-	  printf  "%s\t%s\n" "$((i+1))" "${songs_array[$i]}"
+	  printf  "%s\t%s\n" "$((i+1))" "${songs_array[$i]}" 2>/dev/null
 	done
 }
 
@@ -38,13 +45,23 @@ list_array()
 
 hr()
 {
-   printf "%*s" $COLUMNS | tr " " "-"
+   columns=$(tput cols)
+   printf "%*s" $columns | tr " " "-"
 }
 
 
+default_menu()
+{   
+	clear
+	default_songs_list
+	Choose_List
+}
+
 
 Choose_List()
-{
+{  
+
+
  read -p "Enter a number between 1 and 8 or 9 to Exit : " answer
 
  case "$answer"  in 
@@ -88,7 +105,7 @@ Song()
 	list_array
 	hr
     echo ""
-	read -p "Which song ?"  answer_song_selected
+	read -p "Which song you want to edit, select the left number: "  answer_song_selected
 	echo "You selected: " ${songs_array[$((answer_song_selected -1))]}
 	sleep 1
 	clear
@@ -98,56 +115,61 @@ Choose_List2()
 {
 Title_Name2()
 {
-	    read -p "Which Title name you want for ${songs_array[$answer_song_selected]}: " answer_title_name
-	    id3tag -s $answer_title_name ${songs_array[$answer_song_selected]}
+	    read -p "Which Title name you want for ${songs_array[$((answer_song_selected -1))]}: " answer_title_name
+	    id3tag -s "$answer_title_name" ${songs_array[$((answer_song_selected -1))]}
 	    echo "------------------------------------------"
-	    id3tool ${songs_array[$answer_song_selected]}
+	    id3tool ${songs_array[$((answer_song_selected -1))]}
 
 }
 
 Artist_Name2()
 {
-	    read -p "Which Artist name you want for ${songs_array[$answer_song_selected]}: " answer_artist_name
-	    id3tag -a $answer_artist_name ${songs_array[$answer_song_selected]}
+	    read -p "Which Artist name you want for ${songs_array[$((answer_song_selected -1))]}: " answer_artist_name
+	    id3tag -a "$answer_artist_name" ${songs_array[$((answer_song_selected -1))]}
 	    echo "------------------------------------------"
-	    id3tool ${songs_array[$answer_song_selected]}
+	    id3tool ${songs_array[$((answer_song_selected -1))]}
 
 }
 
 Album_Name2()
 {
-	    read -p "Which Album name you want for ${songs_array[$answer_song_selected]}: " answer_album_name
-	    id3tag -A $answer_album_name ${songs_array[$answer_song_selected]}
+	    read -p "Which Album name you want for ${songs_array[$((answer_song_selected -1))]}: " answer_album_name
+	    id3tag -A "$answer_album_name" ${songs_array[$((answer_song_selected -1))]}
 	    echo "------------------------------------------"
-	    id3tool ${songs_array[$answer_song_selected]}
+	    id3tool ${songs_array[$((answer_song_selected -1))]}
 }
+
+
 
 Year2()
 {
-	    read -p "Which Year you want for ${songs_array[$answer_song_selected]}: " answer_year_name
-	    id3tag -y $answer_year_name ${songs_array[$answer_song_selected]}
+	    read -p "Which Year you want for ${songs_array[$((answer_song_selected -1))]}: " answer_year_name
+	    # To do check if answer is int not words.
+	    id3tag -y $answer_year_name ${songs_array[$((answer_song_selected -1))]}
 	    echo "------------------------------------------"
-	    id3tool ${songs_array[$answer_song_selected]}
+	    id3tool ${songs_array[$((answer_song_selected -1))]}
 
 }
 
 
 Track_nb2()
 {
-	    read -p "Which Track number you want for ${songs_array[$answer_song_selected]}: " answer_tracknb_name
-	    id3tag -t $answer_tracknb_name ${songs_array[$answer_song_selected]}
+	    read -p "Which Track number you want for ${songs_array[$((answer_song_selected -1))]}: " answer_tracknb_name
+	    # To do check if answer is int not words.
+	    id3tag -t $answer_tracknb_name ${songs_array[$((answer_song_selected -1))]}
 	    echo "------------------------------------------"
-	    id3tool ${songs_array[$answer_song_selected]}
+	    id3tool ${songs_array[$((answer_song_selected -1))]}
 
 }
 
 
 Total_Album_Track_Nb2()
 {
-	    read -p "The Total Track number on the Album of Title  ${songs_array[$answer_song_selected]}: " answer_total_tracknb_name
-	    id3tag -T $answer_total_tracknb_name ${songs_array[$answer_song_selected]}
+	    read -p "The Total Track number on the Album of Title  ${songs_array[$((answer_song_selected -1))]}: " answer_total_tracknb_name
+	    # To do check if answer is int not words.
+	    id3tag -T $answer_total_tracknb_name ${songs_array[$((answer_song_selected -1))]}
 	    echo "------------------------------------------"
-	    id3tool ${songs_array[$answer_song_selected]}
+	    id3tool ${songs_array[$((answer_song_selected -1))]}
 
 }
 
@@ -212,7 +234,7 @@ case "$answer2"  in
 	;;
 	8) Note2
 	;;
-	9) Exit
+	9) default_menu
 	;;
 	*) echo -e "\n\n No !! \n Please select a number between 1 and 8 or 9 to Exit !! \n\n" && Choose_List 
 esac 
@@ -221,13 +243,11 @@ esac
 
 
 Choose_List2
-	sleep 3
-	clear
-	echo "Everything went fine, you will go back to the Menu"
-	sleep 1
-	clear
-	default_songs_list
-	Choose_List
+sleep 3
+clear
+echo "Everything went fine, you will go back to the Menu"
+sleep 1
+default_menu
 
 } # END OF Song()
 
@@ -240,7 +260,7 @@ Artist_Name()
 {
 	clear
 	hr
-	ls *.mp3 | sed -E "s/[[:space:]]+/_/g"
+	ls *.{mp3,wav} 2>/dev/null | sed -E "s/[[:space:]]+/_/g"
 	hr
 	echo ""
 	read -p "Which Artist Name would like to have for all the above songs ?" answer_Artist_Name
@@ -248,15 +268,18 @@ Artist_Name()
 	echo "All the above songs will have their Metadata edited with \"$answer_Artist_Name\""
 	echo ""
 	read -p "READY ??" ready
-    for i in $(ls *.mp3 | sed -E "s/[[:space:]]+/_/g")
-	do
-		id3tag -a $answer_Artist_Name $i
-		echo "------------------------------------------"
-		id3tool $i
-		echo "/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/"
-		echo ""
-		echo ""
-	done
+		for i in $(ls *.{mp3,wav} 2>/dev/null | sed -E "s/[[:space:]]+/_/g")
+		do
+			id3tag -a "$answer_Artist_Name" $i
+			echo "------------------------------------------"
+			id3tool $i
+			echo "/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/"
+			echo ""
+			echo ""
+		done
+	read -p "Press Enter to go back to default menu" 	
+	default_menu
+
 }	
 
 
@@ -264,7 +287,7 @@ Album_Name()
 {
 	clear
 	hr
-	ls *.mp3 | sed -E "s/[[:space:]]+/_/g"
+	ls *.{mp3,wav} 2>/dev/null | sed -E "s/[[:space:]]+/_/g"
 	hr
 	echo ""
 	read -p "Which Album Name would like to have ?" answer_Album_Name
@@ -272,15 +295,16 @@ Album_Name()
 	echo "All the above songs will have their Metadata edited with \"$answer_Album_Name\""
 	echo ""
 	read -p "READY ??" ready
-    for i in $(ls *.mp3 | sed -E "s/[[:space:]]+/_/g")
-	do
-		id3tag -A $answer_Album_Name $i
-		echo "------------------------------------------"
-		id3tool $i
-		echo "/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/"
-		echo ""
-		echo ""
-	done
+	    for i in $(ls *.{mp3,wav} 2>/dev/null | sed -E "s/[[:space:]]+/_/g")
+		do
+			id3tag -A "$answer_Album_Name" $i
+			echo "------------------------------------------"
+			id3tool $i
+			echo "/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/"
+			echo ""
+			echo ""
+		done
+	
 }
 
 
@@ -288,7 +312,7 @@ Year()
 {
 	clear
 	hr
-	ls *.mp3 | sed -E "s/[[:space:]]+/_/g"
+	ls *.{mp3,wav} 2>/dev/null | sed -E "s/[[:space:]]+/_/g"
 	hr
 	echo ""
 	read -p "Which year those songs where produce (Enter 4 digits eg: 2020)?" answer_Year
@@ -296,15 +320,16 @@ Year()
 	echo "All the above songs will have their Metadata edited with \"$answer_Year\""
 	echo ""
 	read -p "READY ??" ready
-    for i in $(ls *.mp3 | sed -E "s/[[:space:]]+/_/g")
-	do
-		id3tag -y $answer_Year $i
-		echo "------------------------------------------"
-		id3tool $i
-		echo "/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/"
-		echo ""
-		echo ""
-	done
+	    for i in $(ls *.{mp3,wav} 2>/dev/null | sed -E "s/[[:space:]]+/_/g")
+		do
+			id3tag -y $answer_Year $i
+			echo "------------------------------------------"
+			id3tool $i
+			echo "/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/"
+			echo ""
+			echo ""
+		done
+	
 }
 
 
@@ -313,7 +338,7 @@ Track_nb()
 	# need array
 	clear
 	hr
-	ls *.mp3 | sed -E "s/[[:space:]]+/_/g"
+	ls *.{mp3,wav} 2>/dev/null | sed -E "s/[[:space:]]+/_/g"
 	hr
 	echo ""
 	read -p "Which Track nb ?" answer_Track_nb
@@ -321,15 +346,16 @@ Track_nb()
 	echo "All the above songs will have their Metadata edited with \"$answer_Track_nb\""
 	echo ""
 	read -p "READY ??" ready
-    for i in $(ls *.mp3 | sed -E "s/[[:space:]]+/_/g")
-	do
-		id3tag -t $answer_Track_nb $i
-		echo "------------------------------------------"
-		id3tool $i
-		echo "/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/"
-		echo ""
-		echo ""
-	done
+	    for i in $(ls *.{mp3,wav} 2>/dev/null | sed -E "s/[[:space:]]+/_/g")
+		do
+			id3tag -t $answer_Track_nb $i
+			echo "------------------------------------------"
+			id3tool $i
+			echo "/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/"
+			echo ""
+			echo ""
+		done
+	
 }
 
 
@@ -337,7 +363,7 @@ Total_Album_Track_Nb()
 {
 	clear
 	hr
-	ls *.mp3 | sed -E "s/[[:space:]]+/_/g"
+	ls *.{mp3,wav} 2>/dev/null | sed -E "s/[[:space:]]+/_/g"
 	hr
 	echo ""
 	read -p "Total number of tracks for the Album ?" answer_Total_Album_Track_Nb
@@ -345,15 +371,16 @@ Total_Album_Track_Nb()
 	echo "All the above songs will have their Metadata edited with \"$answer_Total_Album_Track_Nb\""
 	echo ""
 	read -p "READY ??" ready
-    for i in $(ls *.mp3 | sed -E "s/[[:space:]]+/_/g")
-	do
-		id3tag -T $answer_Total_Album_Track_Nb $i
-		echo "------------------------------------------"
-		id3tool $i
-		hr
-		echo ""
-		echo ""
-	done
+	    for i in $(ls *.{mp3,wav} 2>/dev/null | sed -E "s/[[:space:]]+/_/g")
+		do
+			id3tag -T $answer_Total_Album_Track_Nb $i
+			echo "------------------------------------------"
+			id3tool $i
+			hr
+			echo ""
+			echo ""
+		done
+	
 }
 
 
@@ -369,14 +396,13 @@ Genre()
     echo ""
 	read -p "Select the left number of the GENRE that you want for : " answer_Genre
 	clear
-	#echo $((answer_Genre2-1))
 	echo "You selected: " ${genre_list_array[$((answer_Genre -1))]}
 	echo $answer_Genre
-	id3tag -g $((answer_Genre -1)) *.{mp3,wav}  1>/dev/null
-	id3tool *.{mp3,wav}
+	id3tag -g $((answer_Genre -1)) *.{mp3,wav} 2>/dev/null  1>/dev/null
+	id3tool *.{mp3,wav} 2>/dev/null
 	sleep 3
 	clear
-	Choose_List
+	
 }
 
 
@@ -384,7 +410,7 @@ Note()
 {
 	clear
 	hr
-	ls *.mp3 | sed -E "s/[[:space:]]+/_/g"
+	ls *.{mp3,wav} 2>/dev/null | sed -E "s/[[:space:]]+/_/g"
 	hr
 	echo ""
 	read -p "Which Note would you like to put in this Album ?" answer_Note
@@ -392,26 +418,24 @@ Note()
 	echo "All the above songs will have their Metadata edited with \"$answer_Note\""
 	echo ""
 	read -p "READY ??" ready
-    for i in $(ls *.mp3 | sed -E "s/[[:space:]]+/_/g")
-	do
-		id3tool -n "$answer_Note" $i
-		echo "------------------------------------------"
-		id3tool $i
-		hr
-		echo ""
-		echo ""
-	done
+	    for i in $(ls *.{mp3,wav} 2>/dev/null | sed -E "s/[[:space:]]+/_/g")
+		do
+			id3tool -n "$answer_Note" $i
+			echo "------------------------------------------"
+			id3tool $i
+			hr
+			echo ""
+			echo ""
+		done
 	sleep 3
 	clear
-	Choose_List
+
+	
 }
 
 
 
 clear
-echo ""
-echo ""
-echo ""
 echo "Hi !! So you want to edit the Metadata of all the files in this `pwd` directory?"
 echo ""
 echo "The list of the songs in `pwd` are below:"
@@ -429,7 +453,8 @@ default_songs_list()
 {
 list_array
 hr
-echo "You have a total of" `ls *.{mp3,wav} | sort | wc -l` "songs which can be edited"
+echo""
+echo "You have a total of" `ls *.{mp3,wav} 2>/dev/null | sort | wc -l` "songs which can be edited"
 echo ""
 read -p "Press enter to continue"
 echo ""
