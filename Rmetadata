@@ -1,0 +1,500 @@
+#!/bin/bash
+
+# You have to run this script in the same dir than the songs.
+
+
+set -e
+
+# checking if id3tool and id3tag are installed
+
+if which id3tool && which id3tag;then
+    echo ""
+else
+    echo "You need to install id3tool and id3tag from Homebrew for this program to work on your OS ..."
+    sleep 4
+    exit
+fi
+
+
+clear
+
+
+
+# Cheking all mp3 files from directory put them in a array then sort them
+
+songs_array=($(ls *.{mp3,wav} | sort))
+
+
+list_array()
+{
+	for i in "${!songs_array[@]}"
+	do 
+	  printf  "%s\t%s\n" "$((i+1))" "${songs_array[$i]}"
+	done
+}
+
+
+# function screen divider
+
+hr()
+{
+   printf "%*s" $COLUMNS | tr " " "-"
+}
+
+
+
+Choose_List()
+{
+ read -p "Enter a number between 1 and 8 or 9 to Exit : " answer
+
+ case "$answer"  in 
+	1) Song
+	;;
+	2) Artist_Name
+	;;
+	3) Album_Name
+	;;
+	4) Year
+	;;
+	5) Track_nb
+	;;
+	6) Total_Album_Track_Nb
+	;;
+	7) Genre
+	;;
+	8) Note
+	;;
+	9) clear
+	;;
+	*) echo -e "\n\n No !! \n Please select a number between 1 and 9 !! \n\n" && Choose_List 
+esac 
+}
+
+## FUNCTIONS
+
+
+Exit()
+{
+clear
+}
+
+
+# For individual song 
+
+Song()
+{
+	clear
+	hr
+	#ls *.mp3 | sed -E "s/[[:space:]]+/_/g" | sort
+	# echo ${songs_array[@]}  
+	list_array
+	hr
+    echo ""
+	read -p "Which song ?"  answer_song_selected
+	echo "You selected: " ${songs_array[$((answer_song_selected -1))]}
+
+	sleep 1
+	clear
+
+
+Choose_List2()
+{
+
+Title_Name2()
+{
+	    read -p "Which Title name you want for ${songs_array[$answer_song_selected]}: " answer_title_name
+	    id3tag -s $answer_title_name ${songs_array[$answer_song_selected]}
+	    echo "------------------------------------------"
+	    id3tool ${songs_array[$answer_song_selected]}
+
+}
+
+Artist_Name2()
+{
+	    read -p "Which Artist name you want for ${songs_array[$answer_song_selected]}: " answer_artist_name
+	    id3tag -a $answer_artist_name ${songs_array[$answer_song_selected]}
+	    echo "------------------------------------------"
+	    id3tool ${songs_array[$answer_song_selected]}
+
+}
+
+Album_Name2()
+{
+	    read -p "Which Album name you want for ${songs_array[$answer_song_selected]}: " answer_album_name
+	    id3tag -A $answer_album_name ${songs_array[$answer_song_selected]}
+	    echo "------------------------------------------"
+	    id3tool ${songs_array[$answer_song_selected]}
+}
+
+Year2()
+{
+	    read -p "Which Year you want for ${songs_array[$answer_song_selected]}: " answer_year_name
+	    id3tag -y $answer_year_name ${songs_array[$answer_song_selected]}
+	    echo "------------------------------------------"
+	    id3tool ${songs_array[$answer_song_selected]}
+
+}
+
+
+Track_nb2()
+{
+	    read -p "Which Track number you want for ${songs_array[$answer_song_selected]}: " answer_tracknb_name
+	    id3tag -t $answer_tracknb_name ${songs_array[$answer_song_selected]}
+	    echo "------------------------------------------"
+	    id3tool ${songs_array[$answer_song_selected]}
+
+}
+
+
+Total_Album_Track_Nb2()
+{
+	    read -p "The Total Track number on the Album of Title  ${songs_array[$answer_song_selected]}: " answer_total_tracknb_name
+	    id3tag -T $answer_total_tracknb_name ${songs_array[$answer_song_selected]}
+	    echo "------------------------------------------"
+	    id3tool ${songs_array[$answer_song_selected]}
+
+}
+
+
+Genre2()
+{
+	    clear
+	    #genre_list_array=( $(cat genre.txt) )
+	    #genre_list_array=( $(cat genre2.txt) )
+
+       #for i in "${!genre_list_array[@]}"
+       #do 
+       #	  printf  "%s\t%s\n" "$((i+1))" "${genre_list_array[$i]}"
+       #done
+
+        cat genre2.txt
+        echo ""
+		read -p "Select the left number of the GENRE that you want for ${songs_array[$((answer_song_selected -1))]}: " answer_Genre
+		clear
+		#echo $((answer_Genre2-1))
+		echo "You selected: " ${genre_list_array[$((answer_Genre-1))]}
+		echo $answer_Genre
+
+		echo ${songs_array[$answer_song_selected]}
+
+
+
+		
+
+		#id3tag --g $answer_Genre ${songs_array[$answer_song_selected]} | id3tool ${songs_array[$answer_song_selected]} 
+		#id3tag -g $answer_Genre $boom | id3tool ${songs_array[$((answer_song_selected -1))]} 
+		id3tag -g $((answer_Genre -1)) ${songs_array[$((answer_song_selected -1))]} && id3tool ${songs_array[$((answer_song_selected -1))]} 
+		sleep 3
+
+}
+
+
+Note2()
+{
+	    clear
+	    read -p "Which notes would like to have on : ${songs_array[$answer_song_selected]}: " answer_note2
+	    id3tool -n "$answer_note2" ${songs_array[$answer_song_selected]}
+	    echo "------------------------------------------"
+	    id3tool ${songs_array[$answer_song_selected]}
+
+}
+
+
+echo "What do you want to edit in ${songs_array[$((answer_song_selected -1))]} ?"
+echo ""
+echo "1 - Title ?"
+echo "2 - Artist / Band name  ?"
+echo "3 - Album name  ?"
+echo "4 - Year ?"
+echo "5 - Track number ?"
+echo "6 - Album Total track number ?"
+echo "7 - Genre ?"
+echo "8 - Note ?"
+echo ""
+echo "9 - Exit ?"
+echo ""
+
+read -p "Enter a number between 1 and 8 : " answer2
+
+case "$answer2"  in 
+	1) Title_Name2
+	;;
+	2) Artist_Name2
+	;;
+	3) Album_Name2
+	;;
+	4) Year2
+	;;
+	5) Track_nb2
+	;;
+	6) Total_Album_Track_Nb2
+	;;
+	7) Genre2
+	;;
+	8) Note2
+	;;
+	9) Exit
+	;;
+	*) echo -e "\n\n No !! \n Please select a number between 1 and 8 or 9 to Exit !! \n\n" && Choose_List 
+esac 
+
+} # END OF Choose_List2()
+
+
+Choose_List2
+	sleep 3
+	clear
+	echo "Everything went fine, you will go back to the Menu"
+	sleep 1
+	clear
+	default_songs_list
+	Choose_List
+
+} # END OF Song()
+
+
+
+
+
+# For a GROUP OF SONGS 
+
+Artist_Name()
+{
+	clear
+	hr
+	ls *.mp3 | sed -E "s/[[:space:]]+/_/g"
+	hr
+	echo ""
+	read -p "Which Artist Name would like to have for all the above songs ?" answer_Artist_Name
+	echo ""
+	echo "All the above songs will have their Metadata edited with \"$answer_Artist_Name\""
+	echo ""
+	read -p "READY ??" ready
+    for i in $(ls *.mp3 | sed -E "s/[[:space:]]+/_/g")
+	do
+		id3tag -a $answer_Artist_Name $i
+		echo "------------------------------------------"
+		id3tool $i
+		echo "/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/"
+		echo ""
+		echo ""
+	done
+}	
+
+
+Album_Name()
+{
+	clear
+	hr
+	ls *.mp3 | sed -E "s/[[:space:]]+/_/g"
+	hr
+	echo ""
+	read -p "Which Album Name would like to have ?" answer_Album_Name
+	echo ""
+	echo "All the above songs will have their Metadata edited with \"$answer_Album_Name\""
+	echo ""
+	read -p "READY ??" ready
+    for i in $(ls *.mp3 | sed -E "s/[[:space:]]+/_/g")
+	do
+		id3tag -A $answer_Album_Name $i
+		echo "------------------------------------------"
+		id3tool $i
+		echo "/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/"
+		echo ""
+		echo ""
+	done
+}
+
+
+Year()
+{
+	clear
+	hr
+	ls *.mp3 | sed -E "s/[[:space:]]+/_/g"
+	hr
+	echo ""
+	read -p "Which year those songs where produce (Enter 4 digits eg: 2020)?" answer_Year
+	echo ""
+	echo "All the above songs will have their Metadata edited with \"$answer_Year\""
+	echo ""
+	read -p "READY ??" ready
+    for i in $(ls *.mp3 | sed -E "s/[[:space:]]+/_/g")
+	do
+		id3tag -y $answer_Year $i
+		echo "------------------------------------------"
+		id3tool $i
+		echo "/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/"
+		echo ""
+		echo ""
+	done
+}
+
+
+Track_nb()
+{
+	# need array
+	clear
+	hr
+	ls *.mp3 | sed -E "s/[[:space:]]+/_/g"
+	hr
+	echo ""
+	read -p "Which Track nb ?" answer_Track_nb
+	echo ""
+	echo "All the above songs will have their Metadata edited with \"$answer_Track_nb\""
+	echo ""
+	read -p "READY ??" ready
+    for i in $(ls *.mp3 | sed -E "s/[[:space:]]+/_/g")
+	do
+		id3tag -t $answer_Track_nb $i
+		echo "------------------------------------------"
+		id3tool $i
+		echo "/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/"
+		echo ""
+		echo ""
+	done
+}
+
+
+Total_Album_Track_Nb()
+{
+	clear
+	hr
+	ls *.mp3 | sed -E "s/[[:space:]]+/_/g"
+	hr
+	echo ""
+	read -p "Total number of tracks for the Album ?" answer_Total_Album_Track_Nb
+	echo ""
+	echo "All the above songs will have their Metadata edited with \"$answer_Total_Album_Track_Nb\""
+	echo ""
+	read -p "READY ??" ready
+    for i in $(ls *.mp3 | sed -E "s/[[:space:]]+/_/g")
+	do
+		id3tag -T $answer_Total_Album_Track_Nb $i
+		echo "------------------------------------------"
+		id3tool $i
+		hr
+		echo ""
+		echo ""
+	done
+}
+
+
+Genre()
+{
+ 	clear
+ 	echo "So you want to edit the GENRE of all the songs in the Directory ?"
+ 	read -p "Press enter to see all the GENRES" 
+ 	# id3tool -l | tail -n +3 | cat -b
+ 	clear
+
+clear
+
+
+	    clear    
+	    genre_list_array=( $(cat genres_two) )
+        cat genre2.txt 
+        echo ""
+		read -p "Select the left number of the GENRE that you want for : " answer_Genre
+		clear
+		#echo $((answer_Genre2-1))
+		echo "You selected: " ${genre_list_array[$((answer_Genre -1))]}
+		echo $answer_Genre
+		id3tag -g $((answer_Genre -1)) *.{mp3,wav}  1>/dev/null
+		id3tool *.{mp3,wav}
+		sleep 3
+		clear
+		Choose_List
+
+
+}
+
+
+Note()
+{
+	clear
+	hr
+	ls *.mp3 | sed -E "s/[[:space:]]+/_/g"
+	hr
+	echo ""
+	read -p "Which Note would you like to put in this Album ?" answer_Note
+	echo ""
+	echo "All the above songs will have their Metadata edited with \"$answer_Note\""
+	echo ""
+	read -p "READY ??" ready
+    for i in $(ls *.mp3 | sed -E "s/[[:space:]]+/_/g")
+	do
+		id3tool -n "$answer_Note" $i
+		echo "------------------------------------------"
+		id3tool $i
+		hr
+		echo ""
+		echo ""
+	done
+	sleep 3
+	clear
+	Choose_List
+}
+
+
+
+clear
+echo ""
+echo ""
+echo ""
+echo "Hi !! So you want to edit the Metadata of all the files in this `pwd` directory?"
+echo ""
+echo "The list of the songs in `pwd` are below:"
+echo ""
+hr
+
+
+## Reformat file name
+
+for f in *; do mv "$f" `echo $f | tr ' ' '_'`; done 2>/dev/null
+for f in *; do mv "$f" `echo $f | tr '-' '_'`; done 2>/dev/null
+
+
+
+default_songs_list(){
+list_array
+hr
+echo "You have a total of" `ls *.{mp3,wav} | sort | wc -l` "songs which can be edited"
+echo ""
+read -p "Press enter to continue"
+echo ""
+
+clear
+
+echo "What do you want to edit ?"
+echo ""
+echo ""
+
+hr
+
+echo "1 - All Metadata for one song only (not the file name)?"
+echo ""
+echo "2 - Artist / Band name only (for all the directory) ?"
+echo "3 - Album name only (for all the directory) ?"
+echo "4 - Year only (for all the directory)?"
+echo "5 - Track number only (for all the directory)?"
+echo "6 - Album Total track number only (for all the directory)?"
+echo "7 - Genre only (for all the directory)?"
+echo "8 - Note (for all the directory) ?"
+echo ""
+echo "9 - Exit ?"
+
+hr
+
+echo ""
+echo ""
+}
+
+
+
+default_songs_list
+Choose_List
+
+# echo "Everything went fine"
+echo "Good Bye"
+sleep 2
+clear
