@@ -20,7 +20,7 @@ clear
 
 
 
-# Cheking all mp3 files from directory put them in a array then sort them
+# Cheking all mp3 and wav files from directory put them in a array then sort them
 
 songs_array=($(ls *.{mp3,wav} | sort))
 
@@ -84,22 +84,18 @@ clear
 Song()
 {
 	clear
-	hr
-	#ls *.mp3 | sed -E "s/[[:space:]]+/_/g" | sort
-	# echo ${songs_array[@]}  
+	hr 
 	list_array
 	hr
     echo ""
 	read -p "Which song ?"  answer_song_selected
 	echo "You selected: " ${songs_array[$((answer_song_selected -1))]}
-
 	sleep 1
 	clear
 
 
 Choose_List2()
 {
-
 Title_Name2()
 {
 	    read -p "Which Title name you want for ${songs_array[$answer_song_selected]}: " answer_title_name
@@ -159,33 +155,15 @@ Total_Album_Track_Nb2()
 Genre2()
 {
 	    clear
-	    #genre_list_array=( $(cat genre.txt) )
-	    #genre_list_array=( $(cat genre2.txt) )
-
-       #for i in "${!genre_list_array[@]}"
-       #do 
-       #	  printf  "%s\t%s\n" "$((i+1))" "${genre_list_array[$i]}"
-       #done
-
         cat genre2.txt
         echo ""
 		read -p "Select the left number of the GENRE that you want for ${songs_array[$((answer_song_selected -1))]}: " answer_Genre
 		clear
-		#echo $((answer_Genre2-1))
 		echo "You selected: " ${genre_list_array[$((answer_Genre-1))]}
 		echo $answer_Genre
-
 		echo ${songs_array[$answer_song_selected]}
-
-
-
-		
-
-		#id3tag --g $answer_Genre ${songs_array[$answer_song_selected]} | id3tool ${songs_array[$answer_song_selected]} 
-		#id3tag -g $answer_Genre $boom | id3tool ${songs_array[$((answer_song_selected -1))]} 
 		id3tag -g $((answer_Genre -1)) ${songs_array[$((answer_song_selected -1))]} && id3tool ${songs_array[$((answer_song_selected -1))]} 
 		sleep 3
-
 }
 
 
@@ -213,6 +191,7 @@ echo "8 - Note ?"
 echo ""
 echo "9 - Exit ?"
 echo ""
+
 
 read -p "Enter a number between 1 and 8 : " answer2
 
@@ -251,7 +230,6 @@ Choose_List2
 	Choose_List
 
 } # END OF Song()
-
 
 
 
@@ -385,27 +363,20 @@ Genre()
  	echo "So you want to edit the GENRE of all the songs in the Directory ?"
  	read -p "Press enter to see all the GENRES" 
  	# id3tool -l | tail -n +3 | cat -b
- 	clear
-
-clear
-
-
-	    clear    
-	    genre_list_array=( $(cat genres_two) )
-        cat genre2.txt 
-        echo ""
-		read -p "Select the left number of the GENRE that you want for : " answer_Genre
-		clear
-		#echo $((answer_Genre2-1))
-		echo "You selected: " ${genre_list_array[$((answer_Genre -1))]}
-		echo $answer_Genre
-		id3tag -g $((answer_Genre -1)) *.{mp3,wav}  1>/dev/null
-		id3tool *.{mp3,wav}
-		sleep 3
-		clear
-		Choose_List
-
-
+    clear    
+    genre_list_array=( $(cat genres_two) )
+    cat genre2.txt 
+    echo ""
+	read -p "Select the left number of the GENRE that you want for : " answer_Genre
+	clear
+	#echo $((answer_Genre2-1))
+	echo "You selected: " ${genre_list_array[$((answer_Genre -1))]}
+	echo $answer_Genre
+	id3tag -g $((answer_Genre -1)) *.{mp3,wav}  1>/dev/null
+	id3tool *.{mp3,wav}
+	sleep 3
+	clear
+	Choose_List
 }
 
 
@@ -448,14 +419,14 @@ echo ""
 hr
 
 
-## Reformat file name
+## Reformat file names with spaces and - to _
 
 for f in *; do mv "$f" `echo $f | tr ' ' '_'`; done 2>/dev/null
 for f in *; do mv "$f" `echo $f | tr '-' '_'`; done 2>/dev/null
 
 
-
-default_songs_list(){
+default_songs_list()
+{
 list_array
 hr
 echo "You have a total of" `ls *.{mp3,wav} | sort | wc -l` "songs which can be edited"
@@ -490,11 +461,8 @@ echo ""
 }
 
 
-
 default_songs_list
 Choose_List
-
-# echo "Everything went fine"
 echo "Good Bye"
 sleep 2
 clear
